@@ -12,7 +12,6 @@ local function CreateRadiusUI()
 
     local CircleFrame = Instance.new("Frame")
     CircleFrame.Size = UDim2.new(0, 200, 0, 200) -- 100-pixel radius (doubled for full coverage)
-    CircleFrame.Position = UDim2.new(0.5, -100, 0.5, -100) -- Adjusted for new alignment around crosshair
     CircleFrame.BackgroundTransparency = 1 -- Fully transparent inside (Hollow circle)
     CircleFrame.BackgroundColor3 = Color3.new(1, 1, 1) -- White (invisible background)
     CircleFrame.Parent = ScreenGui
@@ -29,7 +28,7 @@ local function CreateRadiusUI()
     -- Ensure the UI updates correctly
     RunService.RenderStepped:Connect(function()
         local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-        CircleFrame.Position = UDim2.new(0, screenCenter.X - CircleFrame.Size.X.Offset / 2, 0, screenCenter.Y - CircleFrame.Size.Y.Offset / 2)
+        CircleFrame.Position = UDim2.new(0, screenCenter.X - 100, 0, screenCenter.Y - 100) -- **Dead-center alignment**
     end)
 
     print("UI Script Executed Successfully")
