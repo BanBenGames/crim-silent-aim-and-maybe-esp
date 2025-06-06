@@ -48,30 +48,31 @@ local function GetClosestTargetInRadius()
         end
     end
     
-    -- Debugging print to confirm target detection
     print("Silent Aim Target Found:", closestTarget)
 
     return closestTarget
 end
 
--- Function to override the game's raycast logic
-local function SilentAimRaycast(origin, direction, params)
+-- Function to adjust projectile direction
+local function AdjustBulletDirection(projectile)
     local target = GetClosestTargetInRadius()
-
-    -- Debugging print to confirm if SilentAimRaycast is triggered
-    print("Silent Aim Raycast Function Triggered")
-
     if target then
-        print("Silent Aim Activated: Redirecting shot to", target)
+        print("Redirecting Bullet to:", target)
 
-        -- Adjust aim direction to ensure proper hit registration
-        local adjustedDirection = (target.Position - origin).Unit * 5000 -- Removed vertical offset
-        return workspace:Raycast(origin, adjustedDirection, params)
+        -- Modify velocity to send bullet toward target
+        projectile.Velocity = (target.Position - projectile.Position).Unit * 500 -- Adjust speed
     end
-
-    return workspace:Raycast(origin, direction, params) -- Default behavior when no target is found
 end
 
--- Override raycast using debug.setconstant for better execution reliability
-local oldRaycast = workspace.Raycast
-debug.setconstant(workspace.Raycast, 1, SilentAimRaycast)
+-- Hook projectile creation to modify velocity
+local oldInstanceNew = Instance.new
+Instance.new = function(class, parent)
+    local obj = oldInstanceNew(class, parent)
+
+    if class == "Part" or class == "Projectile" then
+        task.wait(0.1) -- Let the projectile spawn
+        AdjustBulletDirection(obj)
+    end
+    
+    return obj
+end
