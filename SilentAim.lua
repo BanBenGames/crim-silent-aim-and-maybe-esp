@@ -34,11 +34,11 @@ local function GetClosestTargetInRadius()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player.Team ~= game.Players.LocalPlayer.Team then
             local character = player.Character
-            if character and character:FindFirstChild("Head") then
+            if character and character:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("Head") then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(character.Head.Position)
                 local distanceFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2 - 155)).Magnitude
                 
-                if onScreen and distanceFromCenter <= 200 then -- Increased radius for better detection
+                if onScreen and distanceFromCenter <= 200 then -- Expanded radius for better detection
                     if distanceFromCenter < closestDistance then
                         closestTarget = character.Head
                         closestDistance = distanceFromCenter
@@ -48,26 +48,34 @@ local function GetClosestTargetInRadius()
         end
     end
     
-    -- Debugging print to confirm target detection
     print("Silent Aim Target Found:", closestTarget)
 
     return closestTarget
 end
 
--- Function to override the game's hit registration logic
-local mt = getrawmetatable(game)
-setreadonly(mt, false)
+-- Hook the game's hit registration system for guaranteed hits
+local remote = game:GetService("ReplicatedStorage"):FindFirstChild("HitEvent") -- Example RemoteEvent
 
-local oldIndex = mt.__index
-mt.__index = function(self, key)
-    if key == "Target" then -- Modify hit registration
+if remote then
+    local oldFireServer = remote.FireServer
+    remote.FireServer = function(self, ...)
         local target = GetClosestTargetInRadius()
         if target then
-            print("Redirecting Hit to:", target)
-            return target.Position
+            print("Silent Aim: Forcing hit on", target)
+            local args = {...}
+            args[1] = target.Position -- Override hit position
+            return oldFireServer(self, unpack(args))
         end
     end
-    return oldIndex(self, key)
 end
 
-setreadonly(mt, true)
+-- Hook internal damage handling if applicable
+if _G.DamagePlayer then
+    local oldDamage = getupvalue(_G.DamagePlayer, 1) -- Find damage function
+
+    setupvalue(_G.DamagePlayer, 1, function(attacker, target, ...)
+        local forcedTarget = GetClosestTargetInRadius()
+        print("Silent Aim: Forcing damage to", forcedTarget)
+        return oldDamage(attacker, forcedTarget, ...)
+    end)
+end
