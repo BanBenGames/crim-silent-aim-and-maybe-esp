@@ -38,7 +38,7 @@ local function GetClosestTargetInRadius()
                 local screenPos, onScreen = Camera:WorldToViewportPoint(character.Head.Position)
                 local distanceFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2 - 155)).Magnitude
                 
-                if onScreen and distanceFromCenter <= 155 then -- Adjusted radius for detection
+                if onScreen and distanceFromCenter <= 200 then -- Increased radius for better detection
                     if distanceFromCenter < closestDistance then
                         closestTarget = character.Head
                         closestDistance = distanceFromCenter
@@ -48,31 +48,26 @@ local function GetClosestTargetInRadius()
         end
     end
     
+    -- Debugging print to confirm target detection
     print("Silent Aim Target Found:", closestTarget)
 
     return closestTarget
 end
 
--- Function to adjust projectile direction
-local function AdjustBulletDirection(projectile)
-    local target = GetClosestTargetInRadius()
-    if target then
-        print("Redirecting Bullet to:", target)
+-- Function to override the game's hit registration logic
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
 
-        -- Modify velocity to send bullet toward target
-        projectile.Velocity = (target.Position - projectile.Position).Unit * 500 -- Adjust speed
+local oldIndex = mt.__index
+mt.__index = function(self, key)
+    if key == "Target" then -- Modify hit registration
+        local target = GetClosestTargetInRadius()
+        if target then
+            print("Redirecting Hit to:", target)
+            return target.Position
+        end
     end
+    return oldIndex(self, key)
 end
 
--- Hook projectile creation to modify velocity
-local oldInstanceNew = Instance.new
-Instance.new = function(class, parent)
-    local obj = oldInstanceNew(class, parent)
-
-    if class == "Part" or class == "Projectile" then
-        task.wait(0.1) -- Let the projectile spawn
-        AdjustBulletDirection(obj)
-    end
-    
-    return obj
-end
+setreadonly(mt, true)
