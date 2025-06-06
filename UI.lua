@@ -11,8 +11,8 @@ local function CreateRadiusUI()
     ScreenGui.Parent = LocalPlayer:FindFirstChild("PlayerGui") or StarterGui
 
     local CircleFrame = Instance.new("Frame")
-    CircleFrame.Size = UDim2.new(0, 180, 0, 180) -- 90-pixel radius (doubled for full coverage)
-    CircleFrame.Position = UDim2.new(0.5, -90, 0.5, -90) -- Adjusted for new size
+    CircleFrame.Size = UDim2.new(0, 200, 0, 200) -- 100-pixel radius (doubled for full coverage)
+    CircleFrame.Position = UDim2.new(0.5, -100, 0.5, -100) -- Adjusted for new size
     CircleFrame.BackgroundTransparency = 1 -- Fully transparent inside (Hollow circle)
     CircleFrame.BackgroundColor3 = Color3.new(1, 1, 1) -- White (invisible background)
     CircleFrame.Parent = ScreenGui
