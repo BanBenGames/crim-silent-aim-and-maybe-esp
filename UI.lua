@@ -12,7 +12,7 @@ local function CreateRadiusUI()
 
     local CircleFrame = Instance.new("Frame")
     CircleFrame.Size = UDim2.new(0, 200, 0, 200) -- 100-pixel radius (doubled for full coverage)
-    CircleFrame.Position = UDim2.new(0.5, -100, 0.5, -100) -- Adjusted for new size
+    CircleFrame.Position = UDim2.new(0.5, -100, 0.5, -100) -- Adjusted for new alignment around crosshair
     CircleFrame.BackgroundTransparency = 1 -- Fully transparent inside (Hollow circle)
     CircleFrame.BackgroundColor3 = Color3.new(1, 1, 1) -- White (invisible background)
     CircleFrame.Parent = ScreenGui
