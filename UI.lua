@@ -6,13 +6,15 @@ local LocalPlayer = game:GetService("Players").LocalPlayer
 -- Function to create the radius UI
 local function CreateRadiusUI()
     local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.ResetOnSpawn = false -- Keeps UI persistent after death
     task.wait(1) -- Allow time for PlayerGui to load
     ScreenGui.Parent = LocalPlayer:FindFirstChild("PlayerGui") or StarterGui
 
     local CircleFrame = Instance.new("Frame")
     CircleFrame.Size = UDim2.new(0, 170, 0, 170) -- 85-pixel radius (doubled for full coverage)
-    CircleFrame.Position = UDim2.new(0.5, -85, 0.5, -125) -- Adjusted Y offset for crosshair alignment
-    CircleFrame.BackgroundTransparency = 1 -- Fully transparent inside
+    CircleFrame.Position = UDim2.new(0.5, -85, 0.5, -85) -- Centered crosshair
+    CircleFrame.BackgroundTransparency = 0 -- Always visible
+    CircleFrame.BackgroundColor3 = Color3.new(1, 0, 0) -- Solid red for visibility
     CircleFrame.Parent = ScreenGui
 
     local UIStroke = Instance.new("UIStroke")
@@ -27,8 +29,10 @@ local function CreateRadiusUI()
     -- Ensure the UI updates correctly
     RunService.RenderStepped:Connect(function()
         local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-        CircleFrame.Position = UDim2.new(0, screenCenter.X - 85, 0, screenCenter.Y - 125) -- Adjusted Y offset
+        CircleFrame.Position = UDim2.new(0, screenCenter.X - CircleFrame.Size.X.Offset / 2, 0, screenCenter.Y - CircleFrame.Size.Y.Offset / 2)
     end)
+    
+    print("UI Script Executed Successfully")
 end
 
 -- Execute function to create the UI
