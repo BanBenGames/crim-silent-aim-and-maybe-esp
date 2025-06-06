@@ -28,7 +28,7 @@ local function CreateRadiusUI()
     -- Ensure the UI updates correctly
     RunService.RenderStepped:Connect(function()
         local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-        CircleFrame.Position = UDim2.new(0, screenCenter.X - 100, 0, screenCenter.Y - 135) -- Raised slightly for better centering
+        CircleFrame.Position = UDim2.new(0, screenCenter.X - 100, 0, screenCenter.Y - 155) -- Raised slightly for better centering
     end)
 
     print("UI Script Executed Successfully")
