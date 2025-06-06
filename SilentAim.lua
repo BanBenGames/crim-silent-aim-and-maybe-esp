@@ -52,23 +52,18 @@ local function GetClosestTargetInRadius()
     return closestTarget
 end
 
--- Function to hook the game's hit detection logic dynamically
-local function HookHitFunction()
-    for _, v in pairs(getgc(true)) do
-        if typeof(v) == "function" and debug.getinfo(v).name and string.lower(debug.getinfo(v).name):find("hit") then
-            print("Silent Aim: Hooking hit function ->", debug.getinfo(v).name)
-            
-            local oldHit = v
-            hookfunction(v, function(...)
-                local target = GetClosestTargetInRadius()
-                if target then
-                    print("Silent Aim: Forcing hit on", target)
-                    return oldHit(target, ...)
-                end
-                return oldHit(...)
-            end)
-        end
+-- Override the game's raycasting system to force hits onto detected targets
+local function SilentAimRaycast(origin, direction, params)
+    local target = GetClosestTargetInRadius()
+    if target then
+        print("Silent Aim: Redirecting shot to", target)
+        return workspace:Raycast(origin, (target.Position - origin).Unit * 5000, params) -- Force shot to target
     end
+    return workspace:Raycast(origin, direction, params) -- Default behavior when no target is found
 end
 
-HookHitFunction() -- Apply the modification to force all hits onto detected targets
+-- Apply the raycast override using `hookfunction`
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+hookfunction(workspace.Raycast, SilentAimRaycast)
+setreadonly(mt, true)
