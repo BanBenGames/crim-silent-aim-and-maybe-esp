@@ -34,13 +34,13 @@ local function GetClosestTargetInRadius()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player.Team ~= game.Players.LocalPlayer.Team then
             local character = player.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local screenPos, onScreen = Camera:WorldToViewportPoint(character.HumanoidRootPart.Position)
+            if character and character:FindFirstChild("Head") then -- Target the head instead of root part
+                local screenPos, onScreen = Camera:WorldToViewportPoint(character.Head.Position)
                 local distanceFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
                 
                 if onScreen and distanceFromCenter <= 100 then
                     if distanceFromCenter < closestDistance then
-                        closestTarget = character.HumanoidRootPart
+                        closestTarget = character.Head
                         closestDistance = distanceFromCenter
                     end
                 end
@@ -58,15 +58,13 @@ local function SilentAimRaycast(origin, direction, params)
         print("Silent Aim Activated: Redirecting shot to", target)
 
         -- Adjust aim direction slightly upwards to ensure hit registration
-        local adjustedDirection = (target.Position + Vector3.new(0, 1.5, 0) - origin).Unit * 1000
+        local adjustedDirection = (target.Position + Vector3.new(0, 1.5, 0) - origin).Unit * 5000
         return workspace:Raycast(origin, adjustedDirection, params)
     end
 
     return workspace:Raycast(origin, direction, params) -- Default behavior when no target is found
 end
 
--- Ensure we can override Raycast even on strict executors
-local mt = getrawmetatable(game)
-setreadonly(mt, false)
-hookfunction(workspace.Raycast, SilentAimRaycast)
-setreadonly(mt, true)
+-- Override raycast using debug.setconstant for better execution reliability
+local oldRaycast = workspace.Raycast
+debug.setconstant(workspace.Raycast, 1, SilentAimRaycast)
