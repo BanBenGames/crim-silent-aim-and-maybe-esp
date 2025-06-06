@@ -49,33 +49,26 @@ local function GetClosestTargetInRadius()
     end
     
     print("Silent Aim Target Found:", closestTarget)
-
     return closestTarget
 end
 
--- Hook the game's hit registration system for guaranteed hits
-local remote = game:GetService("ReplicatedStorage"):FindFirstChild("HitEvent") -- Example RemoteEvent
-
-if remote then
-    local oldFireServer = remote.FireServer
-    remote.FireServer = function(self, ...)
-        local target = GetClosestTargetInRadius()
-        if target then
-            print("Silent Aim: Forcing hit on", target)
-            local args = {...}
-            args[1] = target.Position -- Override hit position
-            return oldFireServer(self, unpack(args))
+-- Function to hook the game's hit detection logic dynamically
+local function HookHitFunction()
+    for _, v in pairs(getgc(true)) do
+        if typeof(v) == "function" and debug.getinfo(v).name and string.lower(debug.getinfo(v).name):find("hit") then
+            print("Silent Aim: Hooking hit function ->", debug.getinfo(v).name)
+            
+            local oldHit = v
+            hookfunction(v, function(...)
+                local target = GetClosestTargetInRadius()
+                if target then
+                    print("Silent Aim: Forcing hit on", target)
+                    return oldHit(target, ...)
+                end
+                return oldHit(...)
+            end)
         end
     end
 end
 
--- Hook internal damage handling if applicable
-if _G.DamagePlayer then
-    local oldDamage = getupvalue(_G.DamagePlayer, 1) -- Find damage function
-
-    setupvalue(_G.DamagePlayer, 1, function(attacker, target, ...)
-        local forcedTarget = GetClosestTargetInRadius()
-        print("Silent Aim: Forcing damage to", forcedTarget)
-        return oldDamage(attacker, forcedTarget, ...)
-    end)
-end
+HookHitFunction() -- Apply the modification to force all hits onto detected targets
