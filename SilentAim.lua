@@ -38,7 +38,7 @@ local function GetClosestTargetInRadius()
                 local screenPos, onScreen = Camera:WorldToViewportPoint(character.Head.Position)
                 local distanceFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
                 
-                if onScreen and distanceFromCenter <= 100 then
+                if onScreen and distanceFromCenter <= 150 then -- Increased radius for better detection
                     if distanceFromCenter < closestDistance then
                         closestTarget = character.Head
                         closestDistance = distanceFromCenter
@@ -47,6 +47,10 @@ local function GetClosestTargetInRadius()
             end
         end
     end
+    
+    -- Debugging print to confirm target detection
+    print("Silent Aim Target Found:", closestTarget)
+
     return closestTarget
 end
 
@@ -54,11 +58,14 @@ end
 local function SilentAimRaycast(origin, direction, params)
     local target = GetClosestTargetInRadius()
 
+    -- Debugging print to confirm if SilentAimRaycast is triggered
+    print("Silent Aim Raycast Function Triggered")
+
     if target then
         print("Silent Aim Activated: Redirecting shot to", target)
 
-        -- Adjust aim direction slightly upwards to ensure hit registration
-        local adjustedDirection = (target.Position + Vector3.new(0, 1.5, 0) - origin).Unit * 5000
+        -- Adjust aim direction to ensure proper hit registration
+        local adjustedDirection = (target.Position - origin).Unit * 5000 -- Removed vertical offset
         return workspace:Raycast(origin, adjustedDirection, params)
     end
 
