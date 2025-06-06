@@ -53,11 +53,20 @@ end
 -- Function to override the game's raycast logic
 local function SilentAimRaycast(origin, direction, params)
     local target = GetClosestTargetInRadius()
+
     if target then
         print("Silent Aim Activated: Redirecting shot to", target)
-        return workspace:Raycast(origin, (target.Position - origin).Unit * 1000, params)
+
+        -- Adjust aim direction slightly upwards to ensure hit registration
+        local adjustedDirection = (target.Position + Vector3.new(0, 1.5, 0) - origin).Unit * 1000
+        return workspace:Raycast(origin, adjustedDirection, params)
     end
-    return workspace:Raycast(origin, direction, params)
+
+    return workspace:Raycast(origin, direction, params) -- Default behavior when no target is found
 end
 
-hookfunction(workspace.Raycast, SilentAimRaycast) -- Override raycast function
+-- Ensure we can override Raycast even on strict executors
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+hookfunction(workspace.Raycast, SilentAimRaycast)
+setreadonly(mt, true)
