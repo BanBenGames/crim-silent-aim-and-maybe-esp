@@ -26,7 +26,7 @@ end
 
 CreateSilentAimUI() -- Show confirmation when script executes
 
--- Function to find the closest target inside the radius
+-- Function to find the closest target inside the adjusted radius
 local function GetClosestTargetInRadius()
     local closestTarget = nil
     local closestDistance = math.huge
@@ -34,11 +34,11 @@ local function GetClosestTargetInRadius()
     for _, player in pairs(game.Players:GetPlayers()) do
         if player.Team ~= game.Players.LocalPlayer.Team then
             local character = player.Character
-            if character and character:FindFirstChild("Head") then -- Target the head instead of root part
+            if character and character:FindFirstChild("Head") then
                 local screenPos, onScreen = Camera:WorldToViewportPoint(character.Head.Position)
-                local distanceFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)).Magnitude
+                local distanceFromCenter = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2 - 155)).Magnitude
                 
-                if onScreen and distanceFromCenter <= 150 then -- Increased radius for better detection
+                if onScreen and distanceFromCenter <= 155 then -- Adjusted radius for detection
                     if distanceFromCenter < closestDistance then
                         closestTarget = character.Head
                         closestDistance = distanceFromCenter
