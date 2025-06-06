@@ -31,7 +31,7 @@ local function CreateRadiusUI()
         local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
         CircleFrame.Position = UDim2.new(0, screenCenter.X - CircleFrame.Size.X.Offset / 2, 0, screenCenter.Y - CircleFrame.Size.Y.Offset / 2)
     end)
-    
+
     print("UI Script Executed Successfully")
 end
 
