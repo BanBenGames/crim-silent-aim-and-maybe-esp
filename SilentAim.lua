@@ -16,6 +16,12 @@ local function CreateSilentAimUI()
     Label.Font = Enum.Font.SourceSansBold
     Label.Text = "Silent Aim Active"
     Label.Parent = ScreenGui
+
+    -- Make the notification disappear after 5 seconds
+    task.spawn(function()
+        wait(5)
+        ScreenGui:Destroy()
+    end)
 end
 
 CreateSilentAimUI() -- Show confirmation when script executes
